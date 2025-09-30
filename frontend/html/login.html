@@ -1,25 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/frontend/css/login.css" />
-    <title>Document</title>
+    <title>Login</title>
   </head>
   <body>
-    <div class="container">
-      <form action="login">
-        <label for="username">username</label>
-        <br />
-        <input type="username" name="username" id="username" />
-        <br />
-        <label for="psswd">password</label>
-        <br />
-        <input type="password" name="password" id="psswd" />
-        <br />
-        <a href="registration.html">registre</a>
-        <button type="submit">login</button>
-      </form>
-    </div>
+    <main class="wrapper">
+      <section class="container" aria-labelledby="login-title">
+        <h1 id="login-title" class="title">Sign in</h1>
+
+        <form class="form" action="/login" method="post" novalidate>
+          <label for="username" class="label">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="your username"
+            autocomplete="username"
+            required
+            class="input"
+          />
+
+          <label for="psswd" class="label">Password</label>
+          <div class="pw-row">
+            <input
+              id="psswd"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+              class="input"
+            />
+            <button type="button" class="show-btn" aria-label="Show password">
+              👁
+            </button>
+          </div>
+
+          <div class="extras">
+            <a class="link" href="/frontend/html/signUp.html">Register</a>
+            <button type="submit" class="btn">Login</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const pw = document.getElementById("psswd");
+        const btn = document.querySelector(".show-btn");
+        if (!pw || !btn) return;
+        btn.addEventListener("click", () => {
+          if (pw.type === "password") {
+            pw.type = "text";
+            btn.textContent = "🙈";
+          } else {
+            pw.type = "password";
+            btn.textContent = "👁";
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
