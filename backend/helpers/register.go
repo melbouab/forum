@@ -5,11 +5,21 @@ import (
 	"forum/backend/models"
 	"forum/database"
 	"net/http"
+	"text/template"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
+func RegisterGET(w http.ResponseWriter) {
+	tmpl, _ := template.ParseFiles("./frontend/html/signUp.html")
+	tmpl.Execute(w, nil)
+}
+
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		RegisterGET(w)
+		return
+	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

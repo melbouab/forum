@@ -3,15 +3,26 @@ package helpers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"forum/backend/models"
 	"forum/database"
 	"log"
 	"net/http"
 	"strings"
+	"text/template"
 	"time"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == http.MethodGet {
+		LoginGET(w)
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowd", http.StatusMethodNotAllowed)
+		return
+	}
 	username := strings.TrimSpace(r.FormValue("username"))
 	password := strings.TrimSpace(r.FormValue("password"))
 
@@ -21,6 +32,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := GetUserByuserName(username)
 	if err != nil {
+		fmt.Println("error get user", err)
 		return
 	}
 	err = VerifyPassword(password, user.Password)
@@ -56,6 +68,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func GetUserByuserName(username string) (*models.User, error) {
 	db, err := database.Connect()
 	if err != nil {
+		return nil, err
+
 		// return nil, utils.ErrorHandlar(err, "internal error")
 	}
 	defer db.Close()
@@ -64,10 +78,17 @@ func GetUserByuserName(username string) (*models.User, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-
+			return nil, err
 			// return nil, utils.ErrorHandlar(err, "database error")
 		}
+		return nil, err
+
 		// return nil, utils.ErrorHandlar(err, "internal error")
 	}
 	return &user, nil
+}
+
+func LoginGET(w http.ResponseWriter) {
+	tmpl, _ := template.ParseFiles("./frontend/html/login.html")
+	tmpl.Execute(w, nil)
 }
