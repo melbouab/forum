@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
+	"fmt"
 	"forum/database" // (تحسين 1: اسم الـ package تبدل)
 	"html/template"
 	"log"
@@ -32,10 +34,27 @@ func main() {
 	mux.HandleFunc("/register", RegisterHandler(db))
 	mux.HandleFunc("/login", Login)
 
-	addr := ":8080"
-	log.Printf("Server running on http://localhost%s\n", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatalf("failed to start server: %v", err)
+	port := ":3000"
+	cert := "cert.pem"
+	key := "key.pem"
+	// Root handler — simple welcome route
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
+	server := &http.Server{
+		Addr:      port,
+		TLSConfig: tlsConfig,
+		// Handler:   rl.Middleware(middlwares.Compression(middlwares.Rate_time(middlwares.Cors(mux)))),
+		Handler: mux,
+	}
+	fmt.Println("https://localhost:3000")
+	err = server.ListenAndServeTLS(cert, key)
+	// Start the HTTP server
+	// fmt.Println("server is running on port:", port)
+	// err := http.ListenAndServe(port, nil)
+	if err != nil {
+		// Fatal if server fails to start
+		log.Fatalln("Error starting server:", err)
 	}
 }
 
