@@ -22,8 +22,9 @@ func main() {
 	mux.Handle("/frontend/css/", http.StripPrefix("/frontend/css/", fs))
 
 	mux.HandleFunc("/", helpers.Home)
-	mux.HandleFunc("/register", helpers.RegisterHandler)
 	mux.HandleFunc("/login", helpers.LoginHandler)
+	mux.HandleFunc("/register", helpers.RegisterHandler)
+	mux.HandleFunc("/logout", helpers.LogoutHandler)
 
 	port := ":3000"
 	cert := "cert.pem"
@@ -40,11 +41,7 @@ func main() {
 	}
 	fmt.Println("https://localhost:3000")
 	err = server.ListenAndServeTLS(cert, key)
-	// Start the HTTP server
-	// fmt.Println("server is running on port:", port)
-	// err := http.ListenAndServe(port, nil)
 	if err != nil {
-		// Fatal if server fails to start
 		log.Fatalln("Error starting server:", err)
 	}
 }

@@ -74,7 +74,10 @@ func GetUserByuserName(username string) (*models.User, error) {
 	}
 	defer db.Close()
 	var user models.User
-	err = db.QueryRow(`SELECT id, first_name, last_name, email, username, password, inactive_status, role FROM user WHERE username = ?`, username).Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.UserName, &user.Password)
+	err = db.QueryRow(`SELECT id, first_name, last_name, email, username, password FROM user WHERE username = ?`,
+		username).Scan(&user.Id,
+		&user.FirstName, &user.LastName,
+		&user.Email, &user.UserName, &user.Password)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
