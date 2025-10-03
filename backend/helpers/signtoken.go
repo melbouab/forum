@@ -1,4 +1,3 @@
-// package helpers - SignToken (corrected, minor improvements)
 package helpers
 
 import (

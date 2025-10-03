@@ -1,4 +1,3 @@
-// package helpers - RegisterHandler and related (corrected)
 package helpers
 
 import (

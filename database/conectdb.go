@@ -1,4 +1,3 @@
-// package database - Connect (corrected, minor logging improvements)
 package database
 
 import (

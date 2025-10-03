@@ -1,4 +1,3 @@
-// package helpers - VerifyPassword (corrected, minor improvements for clarity)
 package helpers
 
 import (

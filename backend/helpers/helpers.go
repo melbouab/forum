@@ -1,4 +1,3 @@
-// package helpers - Home Handler (corrected)
 package helpers
 
 import (

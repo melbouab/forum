@@ -1,9 +1,7 @@
-// package helpers - LoginHandler and related functions (corrected)
 package helpers
 
 import (
 	"database/sql"
-	"encoding/json"
 	"forum/backend/models"
 	"forum/database"
 	"log"
@@ -58,16 +56,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour),
 		SameSite: http.SameSiteStrictMode,
 	})
-	resp := struct {
-		Token string `json:"token"`
-	}{
-		Token: tokenString,
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Println("error encoding response:", err)
-	}
-	succesffuly(w, user)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
+
 }
 
 func GetUserByuserName(username string) (*models.User, error) {
@@ -101,12 +91,4 @@ func ErrorPage(w http.ResponseWriter) {
 		return
 	}
 	tmpl.Execute(w, nil)
-}
-func succesffuly(w http.ResponseWriter, user interface{}) {
-	tmpl, err := template.ParseFiles("./frontend/html/home.html")
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	tmpl.Execute(w, user)
 }

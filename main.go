@@ -23,7 +23,8 @@ func main() {
 	mux.HandleFunc("/", helpers.Home)
 	mux.HandleFunc("/login", helpers.LoginHandler)
 	mux.HandleFunc("/register", helpers.RegisterHandler)
-	mux.HandleFunc("/logout", helpers.LogoutHandler)
+	mux.HandleFunc("POST /logout", helpers.LogoutHandler)
+	mux.HandleFunc("/home", helpers.HomeHandler)
 
 	port := ":3000"
 	// cert := "cert.pem"
