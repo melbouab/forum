@@ -40,7 +40,7 @@ func main() {
 		// Handler:   rl.Middleware(middlwares.Compression(middlwares.Rate_time(middlwares.Cors(mux)))),
 		Handler: mux,
 	}
-	fmt.Println("http://localhost:3000")
+	fmt.Println("https://localhost:3000")
 	err = server.ListenAndServeTLS(cert, key)
 	// http.ListenAndServe(port, mux)
 	if err != nil {
