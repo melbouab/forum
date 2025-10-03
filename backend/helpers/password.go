@@ -1,3 +1,4 @@
+// package helpers - VerifyPassword (corrected, minor improvements for clarity)
 package helpers
 
 import (
@@ -9,8 +10,8 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-func VerifyPassword(password, encodingHash string) error {
-	parts := strings.Split(encodingHash, ".")
+func VerifyPassword(password, encodedHash string) error {
+	parts := strings.Split(encodedHash, ".")
 	if len(parts) != 2 {
 		return errors.New("invalid encoded hash")
 	}
@@ -36,7 +37,6 @@ func VerifyPassword(password, encodingHash string) error {
 
 	if subtle.ConstantTimeCompare(hash, hashPassword) == 1 {
 		return nil
-	} else {
-		return errors.New("incorrect password")
 	}
+	return errors.New("incorrect password")
 }

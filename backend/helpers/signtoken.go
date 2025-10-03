@@ -1,3 +1,4 @@
+// package helpers - SignToken (corrected, minor improvements)
 package helpers
 
 import (
@@ -7,17 +8,17 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func SignToken(userid, username string) (string, error) {
-	jwtsecret := os.Getenv("JWT_SECRET")
-	jwtexpirestime := os.Getenv("JWT_EXPIRES_IN")
+func SignToken(userID, username string) (string, error) {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtExpiresIn := os.Getenv("JWT_EXPIRES_IN")
 
 	claims := jwt.MapClaims{
-		"uid":  userid,
+		"uid":  userID,
 		"user": username,
 	}
 
-	if jwtexpirestime != "" {
-		duration, err := time.ParseDuration(jwtexpirestime)
+	if jwtExpiresIn != "" {
+		duration, err := time.ParseDuration(jwtExpiresIn)
 		if err != nil {
 			return "", err
 		}
@@ -27,11 +28,9 @@ func SignToken(userid, username string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	signToken, err := token.SignedString([]byte(jwtsecret))
+	signedToken, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
 		return "", err
 	}
-
-	return signToken, nil
+	return signedToken, nil
 }

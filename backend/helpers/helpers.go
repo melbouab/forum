@@ -1,3 +1,4 @@
+// package helpers - Home Handler (corrected)
 package helpers
 
 import (
@@ -10,6 +11,10 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	tmpl, _ := template.ParseFiles("frontend/html/login.html")
+	tmpl, err := template.ParseFiles("frontend/html/login.html")
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 	tmpl.Execute(w, nil)
 }

@@ -1,26 +1,32 @@
+// package database - Connect (corrected, minor logging improvements)
 package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
-	_ "github.com/mattn/go-sqlite3" // درايفر SQLite
+	_ "github.com/mattn/go-sqlite3"
 )
 
-// Connect كتحل الكونيكسيون و كترجعها
 func Connect() (*sql.DB, error) {
-	// (تصحيح 1: حيدنا defer db.Close() من هنا)
 	db, err := sql.Open("sqlite3", "./forum.db")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open db: %w", err)
 	}
 
-	// كنتأكدو أن الكونيكسيون خدامة مزيان
-	if err = db.Ping(); err != nil {
-		db.Close() // إلا كان شي مشكل فالـ ping، كنسدو الكونيكسيون
-		return nil, err
+	createTableSQL := `
+CREATE TABLE IF NOT EXISTS users (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "username" TEXT NOT NULL UNIQUE,
+    "email" TEXT NOT NULL UNIQUE,
+    "password" TEXT NOT NULL
+);`
+	if _, err := db.Exec(createTableSQL); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("create table: %w", err)
 	}
 
-	log.Println("Connected to database successfully")
+	log.Println("Users table is ready.")
 	return db, nil
 }

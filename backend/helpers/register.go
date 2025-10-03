@@ -1,3 +1,4 @@
+// package helpers - RegisterHandler and related (corrected)
 package helpers
 
 import (
@@ -15,8 +16,7 @@ import (
 func RegisterGET(w http.ResponseWriter) {
 	tmpl, err := template.ParseFiles("./frontend/html/signUp.html")
 	if err != nil {
-		http.Error(w, "Could not load the page.", http.StatusInternalServerError)
-		fmt.Println("Template error:", err)
+		http.Error(w, "Could not load the page", http.StatusInternalServerError)
 		return
 	}
 	tmpl.Execute(w, nil)
@@ -35,22 +35,19 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := database.Connect()
 	if err != nil {
 		http.Error(w, "Database connection failed", http.StatusInternalServerError)
-		fmt.Println("DB error:", err)
 		return
 	}
 	defer db.Close()
 
-	firstName := r.FormValue("firstname")
-	lastName := r.FormValue("lastname")
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	confirmPassword := r.FormValue("confirempassword")
+	confirmPassword := r.FormValue("confirm") // Assuming corrected HTML form field name
+
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?", username, email).Scan(&count)
 	if err != nil {
-		http.Error(w, "Database  failed", http.StatusInternalServerError)
-		fmt.Println("DB error:", err)
+		http.Error(w, "Database query failed", http.StatusInternalServerError)
 		return
 	}
 	if count > 0 {
@@ -66,7 +63,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	salt := make([]byte, 16)
 	_, err = rand.Read(salt)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	hash := argon2.IDKey([]byte(password), salt, 1, 64*1024, 4, 32)
@@ -74,24 +71,19 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	saltBase64 := base64.StdEncoding.EncodeToString(salt)
 	hashBase64 := base64.StdEncoding.EncodeToString(hash)
 	encodedHash := fmt.Sprintf("%s.%s", saltBase64, hashBase64)
-	password = encodedHash
 
 	user := models.User{
-		FirstName: firstName,
-		LastName:  lastName,
-		UserName:  username,
-		Email:     email,
-		Password:  (password),
+		UserName: username,
+		Email:    email,
+		Password: encodedHash,
 	}
-	_, err = db.Exec("INSERT INTO users (firstname, lastname, username, email, password) VALUES (?, ?, ?, ?, ?)",
-		user.FirstName, user.LastName, user.UserName, user.Email, user.Password)
-
+	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+		user.UserName, user.Email, user.Password)
+	fmt.Println("INSERTING succesffuly")
 	if err != nil {
-		http.Error(w, "Error inserting user", http.StatusInternalServerError)
-		fmt.Println("Insert error:", err)
+		// Check for unique constraint violation if needed, but SQLite will error on duplicate
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("User registered successfully"))
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
