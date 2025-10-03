@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"forum/backend/helpers"
 	"forum/database"
@@ -27,21 +28,21 @@ func main() {
 	mux.HandleFunc("/home", helpers.HomeHandler)
 
 	port := ":3000"
-	// cert := "cert.pem"
-	// key := "key.pem"
+	cert := "cert.pem"
+	key := "key.pem"
 
-	// tlsConfig := &tls.Config{
-	// 	MinVersion: tls.VersionTLS12,
-	// }
-	// server := &http.Server{
-	// 	Addr:      port,
-	// 	TLSConfig: tlsConfig,
-	// 	// Handler:   rl.Middleware(middlwares.Compression(middlwares.Rate_time(middlwares.Cors(mux)))),
-	// 	Handler: mux,
-	// }
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
+	server := &http.Server{
+		Addr:      port,
+		TLSConfig: tlsConfig,
+		// Handler:   rl.Middleware(middlwares.Compression(middlwares.Rate_time(middlwares.Cors(mux)))),
+		Handler: mux,
+	}
 	fmt.Println("http://localhost:3000")
-	// err = server.ListenAndServeTLS(cert, key)
-	http.ListenAndServe(port, mux)
+	err = server.ListenAndServeTLS(cert, key)
+	// http.ListenAndServe(port, mux)
 	if err != nil {
 		log.Fatalln("Error starting server:", err)
 	}
