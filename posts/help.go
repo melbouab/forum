@@ -1,7 +1,9 @@
-package database
+package db
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 )
 
@@ -10,17 +12,22 @@ type PostRepo struct {
 }
 
 type Post struct {
-	ID         int    `json:"id"`
-	UserId     int    `json:"user_id"`
-	Title      string `json:"title"`
-	Content    string `json:"content"`
-	CategoryID int    `json:"category_id"`
-	CreatedAt  string `json:"created_at"`
+	ID        int       `json:"id"`
+	UserId    int       `json:"userid"`
+	UserName  string    `json:"username"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	ImagePath string    `json:"imagepath"`
+	Category  Category  `json:"category"`
+	Likes     int       `json:"likes"`
+	Dislikes  int       `json:"dislikes"`
+	Comments  []Comment `json:"comments"`
+	CreatedAt string    `json:"createdat"`
 }
 
 type User struct {
 	ID       int    `json:"id"`
-	UserName string `json:"user_name"`
+	UserName string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -29,94 +36,231 @@ type Category struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
+type Comment struct{}
 
-// it create a table post if it not exist at the first time
-func (r *PostRepo) CreateTablePostIfNotExist() error {
-	_, er := r.Db.Exec(`
-		CREATE TABLE IF NOT EXISTS posts(
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER,
-			title TEXT,
-			content TEXT,
-			category_id INTEGER,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
-	return fmt.Errorf("error creating table: %w", er)
-}
-
-// method used to insert posts content into the Post table
-func (r *PostRepo) InsertPost(post Post) error {
-	_, er := r.Db.Exec(
-		"INSERT INTO posts (user_id, title, content, category_id,  created_at) VALUES (?, ?, ?, ?, ?)",
-		post.UserId, post.Title, post.Content, post.CategoryID, post.CreatedAt,
-	)
+// create table of user if not exist
+func (r *PostRepo) CreateTableUserIfNotExist() error {
+	_, er := r.Db.Exec(CreateUserTabel)
 	if er != nil {
-		return fmt.Errorf("error inserting: %w", er)
+		return er
 	}
 	return nil
 }
 
+// it create a table post if it not exist at the first time
+func (r *PostRepo) CreateTablePostIfNotExist() error {
+	_, er := r.Db.Exec(CreatePostTable)
+	if er != nil {
+		return er
+	}
+	return nil
+}
+
+// this create the sessions table if it doesn't exist
+func (r *PostRepo) CreateTableSessionIfNotExist() error {
+	_, er := r.Db.Exec(CreateTableSessions)
+	if er != nil {
+		return er
+	}
+	return nil
+}
+
+// create categories table
+func (r *PostRepo) CreateTableCategoryIfNotExist() error {
+	_, err := r.Db.Exec(CreateTableOfCategories)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// insert default categories
+func (r *PostRepo) InsertCategories() error {
+	categories := []string{"Sport", "Politic", "Economic", "Music", "Education"}
+	for _, name := range categories {
+		_, err := r.Db.Exec("INSERT OR IGNORE INTO categories(name) VALUES(?)", name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// insert user
+func (r *PostRepo) InsertUserInUserTable(username, email, password string) error {
+	_, err := r.Db.Exec(Insert_User_Into_User_Table_Query, username, email, password)
+	if err != nil {
+		return fmt.Errorf("error at inserting user: %w", err)
+	}
+	return nil
+}
+
+// check if the user exist in the data base
+func (r *PostRepo) CheckIfUserExistInDB(username, password string) (int, error) {
+	var id int
+	err := r.Db.QueryRow(Check_If_User_Exist_In_Data_Base_Query, username, password).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+// get user by session id
+func (r *PostRepo) GetUserIDBySession(sessionID string) (int, error) {
+	var userid int
+	err := r.Db.QueryRow(Select_User_By_Session_Id_Query, sessionID).Scan(&userid)
+	if err != nil {
+		return 0, err
+	}
+	return userid, nil
+}
+
+// create session for a user
+func (r *PostRepo) CreateSessionforUser(userId int) (string, error) {
+	generate := func() (string, error) {
+		b := make([]byte, 32)
+		_, err := rand.Read(b)
+		if err != nil {
+			return "", err
+		}
+		return base64.URLEncoding.EncodeToString(b), nil
+	}
+
+	sessionId, er := generate()
+	if er != nil {
+		return "", fmt.Errorf("error at generating session id: %w", er)
+	}
+	_, er = r.Db.Exec(Insert_Session_ID_Into_User_Query, userId, sessionId)
+	if er != nil {
+		return "", fmt.Errorf("failed to create session: %w", er)
+	}
+	return sessionId, nil
+}
+
+// create post
+func (r *PostRepo) CreatePost(userID int, title, content string, categoryID int, imagePath, createdAt string) error {
+	_, err := r.Db.Exec(CreateNewPostQuery, userID, title, content, categoryID, imagePath, createdAt)
+	return err
+}
+
 // this return all the posts or an error
 func (r *PostRepo) GetAllPosts() ([]Post, error) {
-	rows, er := r.Db.Query("SELECT * FROM posts")
-	if er != nil {
-		return nil, fmt.Errorf("error select table: %w", er)
+	rows, err := r.Db.Query(Select_all_posts_from_db)
+	if err != nil {
+		return nil, err
 	}
 	defer rows.Close()
 
-	var res []Post
+	var posts []Post
 	for rows.Next() {
 		var p Post
-		er := rows.Scan(&p.ID, &p.UserId, &p.Title, &p.Content, &p.CategoryID, &p.CreatedAt)
-		if er != nil {
-			return nil, fmt.Errorf("error scanning rows: %w", er)
+		var catID int
+		var catName string
+		var imgPath sql.NullString
+		err := rows.Scan(&p.ID, &p.UserId, &p.UserName, &p.Title, &p.Content, &imgPath, &catID, &catName, &p.Likes, &p.Dislikes, &p.CreatedAt)
+		if err != nil {
+			return nil, err
 		}
-		res = append(res, p)
-	}
-	return res, nil
-}
-
-// this return a post asked
-func (r *PostRepo) GetPost(id int) (Post, error) {
-	var p Post
-	er := r.Db.QueryRow("SELECT * FROM posts WHERE id = ?", id).Scan(&p.ID, &p.UserId, &p.Title, &p.Content, &p.CategoryID, &p.CreatedAt)
-	if er != nil {
-		return Post{}, fmt.Errorf("error selecting post: %w", er)
-	}
-	return p, nil
-}
-
-// this update post in the data base
-func (r *PostRepo) UpdatePost(p Post) error {
-	_, err := r.Db.Exec("UPDATE posts SET user_id=?, title=?, content=?, category_id=? WHERE id=? ",
-		p.UserId, p.Title, p.Content, p.CategoryID, p.ID,
-	)
-	return err
-}
-
-// delete a post in the data base
-func (r *PostRepo) Delete(id int) error {
-	_, err := r.Db.Exec("DELETE FROM posts WHERE id=?", id)
-	return err
-}
-
-// get post by category
-func (r *PostRepo) GetPostByCategory(id int) ([]Post, error) {
-	rows, er := r.Db.Query("SELECT * FROM posts WHERE  category_id=?", id)
-	if er != nil {
-		return []Post{}, fmt.Errorf("error select posts: %w", er)
-	}
-	defer rows.Close()
-
-	var res []Post
-	for rows.Next() {
-		var p Post
-		er := rows.Scan(&p.ID, &p.UserId, &p.Title, &p.Content, &p.CategoryID, &p.CreatedAt)
-		if er != nil {
-			return []Post{}, fmt.Errorf("error scanning row: %w", er)
+		if imgPath.Valid {
+			p.ImagePath = imgPath.String
 		}
-		res = append(res, p)
+		p.Category = Category{ID: catID, Name: catName}
+
+		posts = append(posts, p)
 	}
-	return res, nil
+	return posts, nil
 }
+
+// start the data base
+var CreateUserTabel = `
+		CREATE TABLE IF NOT EXISTS users(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			username TEXT UNIQUE,
+			email TEXT UNIQUE,
+			password TEXT
+		);
+	`
+
+var CreatePostTable = `
+		CREATE TABLE IF NOT EXISTS posts(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			userid INTEGER,
+			title TEXT,
+			content TEXT,
+			categoryid INTEGER,
+			imagepath TEXT,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			createdat DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (userid) REFERENCES users(id),
+			FOREIGN KEY (categoryid) REFERENCES categories(id)
+		);
+	`
+
+var CreateTableSessions = `
+		CREATE TABLE IF NOT EXISTS sessions(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			userid INTEGER,
+			sessionid TEXT UNIQUE,
+			createdat DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (userid) REFERENCES users(id)
+		);
+	`
+
+var CreateTableOfCategories = `
+		CREATE TABLE IF NOT EXISTS categories(
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT UNIQUE
+		);
+	`
+
+func StartDataBase(repo *PostRepo) {
+	if err := repo.CreateTableUserIfNotExist(); err != nil {
+		fmt.Println("error creating user table: ", err)
+		return
+	}
+	if err := repo.CreateTablePostIfNotExist(); err != nil {
+		fmt.Println("error creating post table: ", err)
+		return
+	}
+	if err := repo.CreateTableSessionIfNotExist(); err != nil {
+		fmt.Println("error creating session table: ", err)
+		return
+	}
+	if err := repo.CreateTableCategoryIfNotExist(); err != nil {
+		fmt.Println("error creating categories table: ", err)
+		return
+	}
+	if err := repo.InsertCategories(); err != nil {
+		fmt.Println("error creating categories table: ", err)
+		return
+	}
+}
+
+// queries
+var (
+	Insert_User_Into_User_Table_Query      = "INSERT INTO users(username, email, password) VALUES(?, ?, ?)"
+	Check_If_User_Exist_In_Data_Base_Query = "SELECT id FROM users WHERE username = ? AND password = ?"
+	Select_User_By_Session_Id_Query        = "SELECT userid FROM sessions WHERE sessionid = ?"
+	Insert_Session_ID_Into_User_Query      = "INSERT INTO sessions(userid, sessionid) VALUES(?, ?)"
+)
+
+var CreateNewPostQuery = `
+INSERT INTO posts (userid, title, content, categoryid, imagepath, likes, dislikes, createdat) VALUES (?, ?, ?, ?, ?, 0, 0, ?)
+`
+
+var Select_all_posts_from_db = `
+	SELECT posts.id, posts.userid, COALESCE(users.username,'Unknown') AS username, 
+		posts.title, 
+		posts.content, 
+		posts.imagepath,
+  		categories.id AS categoryid, 
+		categories.name AS categoryname, 
+		posts.likes, 
+		posts.dislikes, 
+		posts.createdat
+	FROM posts
+	LEFT JOIN users ON posts.userid = users.id
+	LEFT JOIN categories ON posts.categoryid = categories.id
+	ORDER BY posts.createdat DESC
+`
