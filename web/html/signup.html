@@ -98,6 +98,9 @@
         Already have an account? <a class="link" href="/login">login</a>
 
       </div>
+         {{if .Error}}
+  <div class="error">{{.Error}}</div>
+{{end}}
     </form>
   </body>
 </html>

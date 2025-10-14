@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="./../css/home.css">
+</head>
+
+<body>
+  <header>
+    <form action="/logout" method="post">
+      <button type="submit">Logout</button>
+    </form>
+  </header>
+  <section>
+    <h2>Create a Post</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Post title" required>
+      <textarea name="content" placeholder="What's on your mind?" rows="3" required></textarea>
+      <select name="category" required>
+        <option value="">Select category</option>
+        <option value="1">Sport</option>
+        <option value="2">Politic</option>
+        <option value="3">Economic</option>
+        <option value="4">Music</option>
+        <option value="5">Education</option>
+      </select>
+      <input type="file" name="image" accept="image/*">
+      <button type="submit">Post</button>
+    </form>
+
+    <h2>All Posts</h2>
+    {{range .}}
+    <div class="post">
+      <div class="post-meta">
+        <form action="/delete" method="POST">
+          <input type="hidden" name="post_id" value="{{.ID}}">
+          <input type="hidden" name="user_id" value="{{.UserId}}">
+          <Button type="submit"> Delete </Button>
+        </form>
+        <strong>By:</strong> {{.UserName}} |
+        <strong>Category:</strong> {{.Category.Name}} |
+        <strong>Posted at:</strong> {{.CreatedAt}}
+      </div>
+      <h3>{{.Title}}</h3>
+      <p>{{.Content}}</p>
+      {{if .ImagePath}}
+      <img src="/uploads/{{.ImagePath}}" alt="efefe">
+      {{end}}
+    </div>
+    {{end}}
+  </section>
+</body>
+
+<style>
+  body {
+    font-family: Arial;
+    background: #f4f4f4;
+    padding: 20px;
+  }
+
+  form {
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+  }
+
+  .post {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+
+  .post-meta {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+  }
+
+  .post img {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 5px;
+  }
+</style>
+
+</html>

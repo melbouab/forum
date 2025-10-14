@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/frontend/css/login.css" />
+    <link rel="stylesheet" href="/web/css/login.css" />
     <title>Login</title>
   </head>
   <body>
@@ -42,6 +42,11 @@
           <div class="extras">
             <a class="link" href="/register">Register</a>
             <button type="submit" class="btn">Login</button>
+          </div>
+          <div class="err">
+            {{if .Error}}
+  <div class="error">{{.Error}}</div>
+{{end}}
           </div>
         </form>
       </section>
