@@ -1,0 +1,303 @@
+:root {
+  --bg: #e2e8f0;
+  --text: #1e293b;
+  --hover: #334155;
+  --hoverd: rgb(83, 99, 129);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Josefin Sans", sans-serif;
+}
+
+/* Navbar */
+.navBar {
+  width: 100%;
+  padding: 10px 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile img {
+  width: 50px;
+}
+
+.active {
+  color: rgb(15, 167, 15);
+  font-size: 15px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--text);
+  margin-right: 9px;
+}
+
+button {
+  height: 43px;
+  width: 100px;
+  border-radius: 20px;
+  border: none;
+
+  background-color: var(--text);
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: "Josefin Sans", sans-serif;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: var(--hover);
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.overlay:target {
+  display: flex;
+}
+
+.create {
+  width: 90%;
+  max-width: 600px;
+  background-color: var(--bg);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.create-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-header img {
+  width: 25px;
+  cursor: pointer;
+}
+
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  resize: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: "Josefin Sans", sans-serif;
+}
+
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.2);
+}
+
+/* Body layout */
+.body {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 30px 20px;
+  justify-content: center;
+  gap: 20px;
+}
+
+.filter {
+  flex: 1;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-option {
+  cursor: pointer;
+  color: gray;
+  transition: 0.2s;
+}
+
+.filter-option span {
+  font-size: 13px;
+}
+
+.filter-option input {
+  display: none; 
+}
+
+.filter-option input:checked + span {
+  color: var(--hover);
+  padding: 0.5rem 1rem;
+}
+
+.filter select,
+.filter button {
+  width: 100%;
+}
+
+/* Posts Section */
+.posts {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.newPost {
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+.post {
+  width: 100%;
+  max-width: 700px;
+  background-color: white;
+  border-radius: 20px;
+  padding-bottom: 5px;
+}
+
+.pHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+}
+
+.pHeader img {
+  width: 35px;
+}
+
+.pHeader label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-right input {
+  transform: translate(0,-15%) ;
+  width: 20px;
+}
+
+.top-right:hover input {
+  cursor: pointer;
+  filter: invert(37%) brightness(97%);
+}
+
+.pBody {
+  padding: 10px 20px;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.toolBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 20px 10px;
+}
+
+.toolBar h6 {
+  font-size: 12px;
+  color: gray;
+}
+
+.categories {
+  display: flex;
+  gap: 8px;
+}
+
+.reactions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reactions form {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.reactions input {
+  width: 18px;
+}
+
+.comment input {
+  width: 16px;
+}
+
+.like:hover input,
+.dislike:hover input{
+  filter: invert(37%) brightness(97%);
+}
+
+.reactions h6 {
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .filter {
+    flex-basis: 100%;
+    max-width: none;
+    order: 2;
+  }
+
+  .posts {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .post {
+    width: 90%;
+  }
+
+  .create {
+    width: 90%;
+  }
+}

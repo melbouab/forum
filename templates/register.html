@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles/login.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <form action="/register" method="POST">
+      <input type="hidden" name="form" value="register" />
+
+      <h2>Get Started !</h2>
+
+      <label>Username:</label>
+      <input type="text" name="username" minlength="3" maxlength="12" required />
+
+      <label class="pwlabel" >Email:</label>
+      <input type="email" name="email" maxlength="100" required/>
+
+      <label class="pwlabel">New Password:</label>
+      <input type="password" name="password" required />
+
+      <label class="pwlabel">Confirme Password:</label>
+      <input type="password" name="confirmPw" required />
+
+      {{if .Message}}
+      <p class="error">{{.Message}}</p>
+      {{end}}
+
+      <button class="submit" type="submit">Sign up</button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <span class="signed">Already have an account?</span>
+      <button type="button" onclick="location.href='/login'">Sign in</button>
+    </form>
+  </body>
+</html>

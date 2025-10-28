@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Login</title>
+    <link rel="stylesheet" href="styles/login.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <form action="/login" method="POST">
+      <h2>Welcome Back !</h2>
+
+      <label>Email:</label>
+      <input type="email" name="email" required />
+
+      <label class="pwlabel">Password:</label>
+      <input type="password" name="password" required />
+
+      {{if .Message}}
+      <label class="error">{{.Message}}</label>
+      {{end}}
+
+      <button class="submit" type="submit">Sign in</button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <button type="button" onclick="location.href='/register'">
+        Create an Account
+      </button>
+    </form>
+  </body>
+</html>

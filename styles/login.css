@@ -1,0 +1,146 @@
+:root {
+  --bg: #e2e8f0;
+  --text: #1e293b;
+  --hover: #334155;
+  --hoverd: rgb(83, 99, 129);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--bg);
+  color: var(--text);
+  
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+}
+
+form {
+  width: 35vw;
+  padding: 25px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+label {
+  margin-bottom: 8px;
+  padding-left: 20px;
+
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.pwlabel {
+  margin-top: 20px;
+}
+
+input,
+button {
+  width: 100%;
+  height: 40px;
+
+  border-width: 0px;
+  border-radius: 20px;
+
+  transition: all 0.3s ease;
+
+  font-family: "Josefin Sans", sans-serif;
+}
+
+input {
+  padding-left: 15px;
+}
+
+input:focus {
+  outline: none;
+  border: 0px solid var(--text);
+  box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.2);
+}
+
+.error {
+  margin-top: 10px;
+
+  font-size: 12px;
+  color: red;
+  font-weight: lighter;
+  text-align: center;
+
+  display: inline-block;
+  animation: vibrate 0.3s linear 2;
+}
+
+@keyframes vibrate {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-3px); }
+  40%  { transform: translateX(3px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+} 
+
+button {
+  margin-bottom: 15px;
+  margin-top: 15px;
+
+  background-color: var(--text);
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.submit {
+  margin-top: 30px;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: var(--hover);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--hoverd);
+}
+
+.divider::before {
+  margin-right: 10px;
+}
+
+.divider::after {
+  margin-left: 10px;
+}
+
+span {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: bold;
+  text-align: center;
+}

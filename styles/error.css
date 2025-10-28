@@ -1,0 +1,53 @@
+:root {
+  --bg: #e2e8f0;
+  --text: #1e293b;
+  --hover: #334155;
+  --hoverd: rgb(83, 99, 129);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100vh;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Josefin Sans", sans-serif;
+}
+
+.statusCode {
+  font-size: 20vh;
+  font-weight: bolder;
+}
+
+.errMsg {
+  margin: 20px 0px 40px 0px;
+}
+
+button {
+  height: 6vh;
+  width: 10vw;
+
+  border-radius: 20px;
+
+  background-color: var(--text);
+  color: white;
+
+  font-family: "Josefin Sans", sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: var(--hover);
+}

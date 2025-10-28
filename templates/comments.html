@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/home.css" />
+  <link rel="stylesheet" href="/styles/comments.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet" />
+  <title>Comments</title>
+</head>
+
+<body>
+  <div class="navBar">
+    <div class="profile">
+      <img src="/media/user.svg" />
+
+      <label>{{.CreatorName}}</label>
+      <span class="active">●</span>
+    </div>
+
+    <button type="button" onclick="location.href='/home'">Back Home</button>
+  </div>
+
+  <div class="overlay" id="create">
+    <form action="/createcomment" method="post" class="create">
+      <input type="hidden" name="post-id" value="{{.Id}}" />
+      <div>
+        <label>Add Comment</label>
+        <img src="/media/cancel.svg" onclick="location.href='#'" />
+      </div>
+
+      <h3>Be Nice :)</h3>
+
+      <textarea name="content" maxlength="300" rows="5" cols="50" placeholder="Comment here..."></textarea>
+
+      <button type="submit">Comment</button>
+    </form>
+  </div>
+
+  <div class="wrapper">
+    <div class="post">
+      <div class="pHeader">
+        <label>
+          <img src="/media/user.svg" />
+          {{.CreatorName}}
+        </label>
+
+        <h6>{{.CreatedAt}}</h6>
+      </div>
+
+      <div class="pBody">
+        <p>{{.Content}}</p>
+      </div>
+
+      <div class="toolBar">
+        <div class="categories">
+          {{range .Categories}}
+          <h6>{{.Name}}</h6>
+          {{end}}
+        </div>
+      </div>
+    </div>
+
+
+    <button class="new" onclick="location.href='#create'">
+      Add Comment +
+    </button>
+
+    <h4>Comments</h4>
+
+    <div class="comments">
+      {{range .Comments}}
+      <div class="comment">
+        <div class="pHeader">
+          <label>
+            <img src="/media/user.svg" />
+            {{.SenderName}}
+          </label>
+          <form class="top-right" action="/deletecomment?id={{.Id}}" method="post">
+            <h6>{{.CreatedAt}}</h6>
+            {{if eq $.CreatorName .SenderName}}
+            <input type="image" src="/media/delete.svg" />
+            {{end}}
+          </form>
+        </div>
+
+        <div class="pBody">
+          <p>{{.Content}}</p>
+        </div>
+
+        <div class="toolBar">
+
+          <div class="reactions">
+
+            <form class="like" action="/interaction?id={{.Id}}&react=like&type=comment" method="post">
+              {{if eq .IsLiked 1}}
+              <input type="image" src="/media/like-on.svg" />
+              {{else}}
+              <input type="image" src="/media/like-off.svg" />
+              {{end}}
+              <h6>{{.Likes}}</h6>
+            </form>
+
+            <form class="dislike" action="/interaction?id={{.Id}}&react=dislike&type=comment" method="post">
+              {{if eq .IsLiked -1}}
+              <input type="image" src="/media/dislike-on.svg" />
+              {{else}}
+              <input type="image" src="/media/dislike-off.svg" />
+              {{end}}
+              <h6>{{.Dislikes}}</h6>
+            </form>
+
+          </div>
+        </div>
+      </div>
+      {{end}}
+    </div>
+  </div>
+</body>
+
+</html>

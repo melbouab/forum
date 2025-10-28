@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/home.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <title>Forum</title>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div class="navBar">
+      <div class="profile">
+        <img src="/media/user.svg" />
+        {{if .Logged}}
+        <label>{{.User}}</label>
+        <span class="active">●</span>
+        {{else}}
+        <label>Guest</label>
+        {{end}}
+      </div>
+      {{if .Logged}}
+      <button type="button" onclick="location.href='/logout'">Log out</button>
+      {{else}}
+      <div>
+        <a href="/register">Sign up</a>
+        <button type="button" onclick="location.href='/login'">Log in</button>
+      </div>
+      {{end}}
+    </div>
+
+    <!-- Create Post Overlay -->
+    {{if $.Logged}}
+    <div class="overlay" id="new-post">
+      <form action="/createpost" method="post" class="create">
+        <input type="hidden" name="form" value="newPost" />
+        <div class="create-header">
+          <label>Create Post</label>
+          <img src="/media/cancel.svg" onclick="location.href='#'" />
+        </div>
+
+        <textarea
+          name="content"
+          maxlength="300"
+          rows="5"
+          cols="50"
+          placeholder="What is happening?"
+          required
+        ></textarea>
+
+        <h6>Select Category</h6>
+        {{range .Categories}}
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="{{.}}" />
+          <span>{{.}}</span>
+        </label>
+        {{end}}
+
+        <button type="submit">Post</button>
+      </form>
+    </div>
+    {{end}}
+
+    <!-- Body -->
+    <div class="body">
+      <!-- Filter Sidebar -->
+      <form action="/home" method="post" class="filter">
+        <input type="hidden" name="form" value="filter" />
+
+        <label>Filter posts by:</label>
+        {{if .Logged}}
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="created" />
+          <span>MyPosts</span>
+        </label>
+
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="liked" />
+          <span>Liked</span>
+        </label>
+        {{end}} {{range .Categories}}
+        <label class="filter-option">
+          <input type="checkbox" name="category" value="{{.}}" />
+          <span>{{.}}</span>
+        </label>
+        {{end}}
+
+        <button type="submit">Filter</button>
+        <button type="button" class="reset" onclick="location.href='/reset'">
+          Reset
+        </button>
+      </form>
+
+      <!-- Posts Section -->
+      <div class="posts">
+        {{if $.Logged}}
+        <button class="newPost" onclick="location.href='#new-post'">
+          New Post +
+        </button>
+        {{end}} {{range .Posts}}
+        <div class="post">
+          <div class="pHeader">
+            <label>
+              <img src="/media/user.svg" />
+              {{.CreatorName}}
+            </label>
+            <form
+              class="top-right"
+              action="/deletepost?id={{.Id}}"
+              method="post"
+            >
+              <h6>{{.CreatedAt}}</h6>
+              {{if eq $.User .CreatorName}}
+              <input type="image" src="/media/delete.svg" />
+              {{end}}
+            </form>
+          </div>
+
+          <div class="pBody">
+            <p>{{.Content}}</p>
+          </div>
+
+          <div class="toolBar">
+            <div class="categories">
+              {{range .Categories}}
+              <h6>{{.Name}}</h6>
+              {{end}}
+            </div>
+            <div class="reactions">
+              <form
+                class="like"
+                {{if
+                $.Logged}}
+                action="/interaction?id={{.Id}}&react=like&type=post"
+                method="post"
+                {{else}}
+                action="/login"
+                {{end}}
+              >
+                {{if eq .IsLiked 1}}
+                <input type="image" src="/media/like-on.svg" />
+                {{else}}
+                <input type="image" src="/media/like-off.svg" />
+                {{end}}
+                <h6>{{.Likes}}</h6>
+              </form>
+
+              <form
+                class="dislike"
+                {{if
+                $.Logged}}
+                action="/interaction?id={{.Id}}&react=dislike&type=post"
+                method="post"
+                {{else}}
+                action="/login"
+                {{end}}
+              >
+                {{if eq .IsLiked -1}}
+                <input type="image" src="/media/dislike-on.svg" />
+                {{else}}
+                <input type="image" src="/media/dislike-off.svg" />
+                {{end}}
+                <h6>{{.Dislikes}}</h6>
+              </form>
+
+              <form class="comment" action="/comments?id={{.Id}}" method="post">
+                <input type="image" src="/media/comment.svg" />
+                <h6>{{.CommentCount}}</h6>
+              </form>
+            </div>
+          </div>
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </body>
+</html>
